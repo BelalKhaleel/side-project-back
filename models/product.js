@@ -7,28 +7,35 @@ const productSchema = new Schema(
       type: String,
       required: true,
     },
-    category: {
-      type: String,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
+    description: String,
+    category: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Category",
+      },
+    ],
+
     price: {
       type: Number,
       required: true,
     },
     image: {
-      type: String,
-      required: true,
+      type: Schema.Types.ObjectId,
+      ref: "File",
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
     },
   },
   {
     collection: "products",
-    timestamps: true
+    timestamps: true,
   }
 );
 
+productSchema.pref(["find", "findOne"], function () {
+  this.populate(["category", "image"]);
+});
 const Product = model("Product", productSchema);
 export default Product;
