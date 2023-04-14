@@ -1,8 +1,8 @@
-import Model from "../models/product.js";
+import Model from "../models/category.js";
 
 class Controller {
-  //callback functions used in product routes
-  //get all the products in the DB (even the softdeleted products)
+  //callback functions used in category routes
+  //get all the categories
   getAll(req, res, next) {
     Model.find()
       .then((response) => {
@@ -14,19 +14,7 @@ class Controller {
       });
   }
 
-  //get the products present
-  get(req, res, next) {
-    Model.find({ isDeleted: false })
-      .then((response) => {
-        console.log(response);
-        res.status(200).send({ success: true, response });
-      })
-      .catch((error) => {
-        res.status(500).send(error);
-      });
-  }
-
-  //get a product by id
+  //get a category by id
   getById(req, res, next) {
     console.log("params", req.params);
     let { id } = req.params;
@@ -40,7 +28,7 @@ class Controller {
       });
   }
 
-  //create a new product
+  //create a new category
   post(req, res, next) {
     let body = req.body;
     console.log(body);
@@ -56,7 +44,7 @@ class Controller {
       });
   }
 
-  //update a product by id
+  //update a category by id
   put(req, res, next) {
     let { id } = req.params;
     let body = req.body;
@@ -65,14 +53,14 @@ class Controller {
         console.log(response);
         res
           .status(200)
-          .send({ success: true, message: "Product updated successfully!" });
+          .send({ success: true, message: "Category updated successfully!" });
       })
       .catch((error) => {
         res.status(500).send(error);
       });
   }
 
-  //delete product by id
+  //delete category by id
   delete(req, res, next) {
     let { id } = req.params;
     Model.findByIdAndDelete({ _id: id }).then((response) => {
@@ -81,24 +69,9 @@ class Controller {
       } else {
         res
           .status(200)
-          .send({ status: 200, message: "Deleted product successfully" });
+          .send({ status: 200, message: "Deleted category successfully" });
       }
     });
-  }
-
-  softDelete(req, res, next) {
-    let { id } = req.params;
-    let body = req.body;
-    Model.findOneAndUpdate({ _id: id }, { $set: { isDeleted: true } })
-      .then((response) => {
-        console.log(response);
-        res
-          .status(200)
-          .send({ success: true, message: "Product hidden successfully!" });
-      })
-      .catch((error) => {
-        res.status(500).send(error);
-      });
   }
 }
 

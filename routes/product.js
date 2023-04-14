@@ -1,11 +1,13 @@
 import express from "express";
 const router = express.Router();
-import controller from "../controllers/admin.js";
+import controller from "../controllers/product.js";
 
-router.get("/", controller.getAll);
+router.get("/all", controller.getAll);
+router.get("/", controller.get);
 router.get("/:id", controller.getById);
 router.post("/", controller.post);
 router.put("/:id", controller.put);
+router.patch("/", controller.softDelete);
 router.delete("/:id", controller.delete);
 
 export default router;

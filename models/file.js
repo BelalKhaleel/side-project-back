@@ -7,9 +7,14 @@ const fileSchema = new Schema(
       type: String,
       required: true,
     },
+    extension: {
+      type: String,
+      required: true
+    },
+    destination: {
     type: String,
-    extension: String,
-    destination: String,
+    required: true
+    },
   },
   {
     collection: "files",
@@ -17,5 +22,5 @@ const fileSchema = new Schema(
   }
 );
 
-const File = model("File", fileSchema);
-module.exports = File;
+const file = model("File", fileSchema);
+module.exports = file;

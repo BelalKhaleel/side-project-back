@@ -11,11 +11,20 @@ const adminSchema = new Schema(
       type: String,
       required: true,
     },
+    email: {
+      type: String,
+      required: true,
+      unique: true
+    },
+    password: {
+      type: String,
+      required: true
+    }
   },
   {
     collection: "admins",
   }
 );
 
-const Admin = model("Admin", adminSchema);
+const Admin = model("Admin", adminSchema, "admins");
 export default Admin;

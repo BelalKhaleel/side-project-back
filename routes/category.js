@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import controller from "../controllers/admin.js";
+import controller from "../controllers/category.js";
 
 router.get("/", controller.getAll);
 router.get("/:id", controller.getById);
