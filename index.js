@@ -3,9 +3,9 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 import connectDB from "./database/db.js";
 import cors from "cors";
-import adminRoutes from "./routes/admin.js";
-import productRoutes from "./routes/product.js";
-import categoryRoutes from "./routes/category.js";
+import adminRoutes from "./src/routes/admin.js";
+import productRoutes from "./src/routes/product.js";
+import categoryRoutes from "./src/routes/category.js";
 
 dotenv.config();
 
