@@ -1,144 +1,132 @@
-import Model from "../models/admin.js";
+import Admin from "../models/admin.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
-class Controller {
-  //callback functions used in admin routes
-  //get all the admins
-  getAll(req, res, next) {
-    Model.find()
-      .then((response) => {
-        console.log(response);
-        res.status(200).send({ success: true, response });
-      })
-      .catch((error) => {
-        res.status(500).send(error);
-      });
-  }
+//get all admins
+export const getAllAdmins = (req, res, next) => {
+  Admin.find()
+    .then((response) => {
+      console.log(response);
+      res.status(200).send({ success: true, response });
+    })
+    .catch((error) => {
+      res.status(500).send(error);
+    });
+};
 
-  //get an admin by id
-  getById(req, res, next) {
-    console.log("params", req.params);
+//get an admin by id
+export const getAdminById = async (req, res, next) => {
+  try {
     let { id } = req.params;
-    Model.findOne({ _id: id })
-      .then((response) => {
-        console.log(response);
-        res.status(200).send({ success: true, response });
-      })
-      .catch((error) => {
-        res.status(500).send(error);
-      });
+    let admin = await Admin.findOne({ _id: id });
+    if (!admin) {
+      throw new Error("Admin not found");
+    }
+    res.status(200).json({ success: true, admin });
+  } catch (error) {
+    res.status(404).json({ success: false, message: error.message });
   }
+};
 
-  //create a new admin
-  post(req, res, next) {
-    let body = req.body;
-    console.log(body);
-    let doc = new Model(body);
-    doc
+//Admin Registration
+export const signup_admin = async (req, res) => {
+  try {
+    const existingAdmin = await Admin.findOne({ email: req.body.email });
+    if (existingAdmin)
+      return res.status(409).json({
+        message: "Mail already exists",
+      });
+
+    const hash = await bcrypt.hash(req.body.password, 10);
+    const newAdmin = new Admin({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      password: hash,
+    });
+    await newAdmin
       .save()
       .then((response) => {
-        console.log(response);
-        res.status(200).send({ success: true, response });
-      })
-      .catch((error) => {
-        res.status(500).send(error);
-      });
-  }
-
-  //update an admin by id
-  put(req, res, next) {
-    let { id } = req.params;
-    let body = req.body;
-    Model.findOneAndUpdate({ _id: id }, { $set: body })
-      .then((response) => {
-        console.log(response);
         res
-          .status(200)
-          .send({ success: true, message: "Admin updated successfully!" });
+          .status(201)
+          .json({ success: true, response, message: "Admin Created" });
       })
-      .catch((error) => {
-        res.status(500).send(error);
+      .catch((err) => {
+        res.status(400).json({ success: false, err });
       });
-  }
-
-  //delete admin by id
-  delete(req, res, next) {
-    let { id } = req.params;
-    Model.findByIdAndDelete({ _id: id }).then((response) => {
-      if (!response) {
-        res.status(404).send({ message: "Not found" });
-      } else {
-        res
-          .status(200)
-          .send({ status: 200, message: "Deleted admin successfully" });
-      }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      error: err,
     });
   }
-}
+};
 
-const controller = new Controller();
+//Admin login
+export const admin_login = async (req, res, next) => {
+  try {
+    const admin = await Admin.findOne({ email: req.body.email });
+    console.log("admin", admin);
+    if (!admin) {
+      res.status(404).json({
+        message: "Admin does not exist",
+      });
+    }
+    let { password } = req.body;
+    const result = await bcrypt.compare(password, admin.password);
+    if (result) {
+      const token = jwt.sign(
+        {
+          id: admin._id,
+        },
+        process.env.JWT_KEY,
+        {
+          expiresIn: "1h",
+        }
+      );
+      res.status(200).json({
+        message: "Auth Successful",
+        token: token,
+      });
+    } else {
+      res.status(401).json({
+        message: "Invalid email or password",
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      error: err,
+    });
+  }
+};
 
-export default controller;
+//update an admin by id
+export const editAdmin = (req, res, next) => {
+  let { id } = req.params;
+  let body = req.body;
+  Admin.findOneAndUpdate({ _id: id }, { $set: body },{new: true})
+    .then((response) => {
+      res
+        .status(200)
+        .send({ success: true, response, message: "Admin updated successfully!" });
+    })
+    .catch((error) => {
+      res.status(500).send(error);
+    });
+};
 
-// import { response } from "express";
-// import Model from "../models/admin.js";
-
-// //callback functions used in admin routes
-// //get all the admins
-// export const getAll = (req, res, next) => {
-//   Model.find({}, (err, response) => {
-//     if (err) return next(err);
-//     res.status(200).send({ success: true, response });
-//   });
-// };
-
-// //get an admin by id
-// export const getById = (req, res, next) => {
-//   console.log("params", req.params);
-//   let { id } = req.params;
-//   Model.findOne({ _id: id })
-//   .then((response) => {
-//     console.log(response);
-//     res.status(200).send({ success: true, response });
-//   })
-//   .catch((error) => {
-//     res.status(500).send(error);
-//   });
-// }
-
-// //create new admin
-// export const post = (req, res, next) => {
-//   let body = req.body;
-//   console.log(body);
-//   let doc = new Model(body);
-//   doc
-//     .save()
-//     .then((response) => {
-//       console.log(response);
-//       res.status(200).send({ success: true, response });
-//     })
-//     .catch((error) => {
-//       res.status(500).send(error);
-//     });
-// };
-
-// //update admin by id
-// export const put = (req, res, next) => {
-//   let { id } = req.params;
-//   Model.findOneAndUpdate({ _id: id }, (err, response) => {
-//     if (err) return next(err);
-//     res.status(200).send({ success: true, response });
-//   });
-// };
-
-// //delete admin by id
-// export const deleteAdmin = (req, res, next) => {
-//   let { id } = req.params;
-//   Model.findByIdAndDelete({ _id: id })
-//   .then((response)=> {
-//     if(!response) {
-//       res.status(404).send({ message: "Not found" });
-//     } else {
-//       res.status(200).send( {status: 200, message: "Deleted admin successfully" })
-//     }
-//   })
-// };
+//delete admin
+export const delete_admin = async (req, res, next) => {
+  try {
+    const result = await Admin.findByIdAndDelete(req.params.id);
+    res.status(200).json({
+      success: true, result, message: "Admin deleted successfully",
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      error: err,
+    });
+  }
+};
