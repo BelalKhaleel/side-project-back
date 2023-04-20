@@ -6,6 +6,7 @@ import cors from "cors";
 import adminRoutes from "./src/routes/admin.js";
 import productRoutes from "./src/routes/product.js";
 import categoryRoutes from "./src/routes/category.js";
+import upload from "./src/middleware/image-upload.js";
 
 dotenv.config();
 
@@ -21,6 +22,8 @@ if (process.env.NODE_ENV === "development") {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+app.use(express.static("uploads"));
 
 app.use(cors());
 

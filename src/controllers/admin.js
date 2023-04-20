@@ -84,6 +84,7 @@ export const admin_login = async (req, res, next) => {
           expiresIn: "1h",
         }
       );
+      res.cookie("auth_token", token, { maxAge: 5 * 60 * 60 * 1000 });
       res.status(200).json({
         message: "Auth Successful",
         token: token,

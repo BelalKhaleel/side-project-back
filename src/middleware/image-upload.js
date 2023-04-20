@@ -1,10 +1,35 @@
-// import path from "path";
-// import express from "express";
-// import multer from "multer";
+import multer from "multer";
 
-// const app = express();
-// const dir = path.join(__dirname, "uploads");
-// app.use(express.static(dir));
+const imageStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, "uploads");
+    },
+    filename: function (req, file, cb) {
+        cb(
+            null,
+            file.fieldname + "-" + Date.now() + "." + file.mimetype.split("/")[1]
+        );
+    },
+});
+
+const upload = multer({
+    storage: imageStorage,
+    fileFilter: function (req, file, callback) {
+        if (
+            file.mimetype == "image/png" ||
+            file.mimetype == "image/jpg" ||
+            file.mimetype == "image/jpeg"
+        ) {
+            callback(null, true);
+        } else {
+            console.log("only jpg & png file supported");
+            callback(null, false);
+        }
+    },
+}).single("image");
+
+export default upload;
+// import multer from "multer";
 
 // const storage = multer.diskStorage({
 //   destination: (req, file, cb) => {
@@ -33,5 +58,5 @@
 //     fileSize: 1024 * 1024 * 5, // 5 MB
 //   },
 // });
-// upload.single("image")
+// upload.single("image");
 // export default upload;

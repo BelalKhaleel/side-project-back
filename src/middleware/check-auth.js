@@ -2,8 +2,8 @@ import jwt from "jsonwebtoken";
 
 export default (req, res, next) => {
   try {
-    // console.log(req.headers.authorization);
-    const token = req.headers.authorization.split(" ")[1];
+    // const token = req.headers.authorization.split(" ")[1];
+    let token = req.cookies["auth_token"];
     const decoded = jwt.verify(token, process.env.JWT_KEY);
     req.adminData = decoded;
     next();

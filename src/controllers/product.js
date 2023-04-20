@@ -43,8 +43,12 @@ class Controller {
   //create a new product
   post(req, res, next) {
     let body = req.body;
-    console.log(body);
+    console.log(req.file);
     let doc = new Model(body);
+    if (req.file) {
+      doc.image = req.file.path;
+    }
+
     doc
       .save()
       .then((response) => {
